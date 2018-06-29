@@ -119,9 +119,9 @@ struct roller_shutter {
       }
       //TODO: report in setup too
       if (percentage_known) {
-        snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'%d'}#", 0, percentage);
+        snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'%d'}#", rs_id, percentage);
       } else {
-        snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'unknown'}#", 0);
+        snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'unknown'}#", rs_id);
       }
       Serial.println(rs_str);
 #if 0
