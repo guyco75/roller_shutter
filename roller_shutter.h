@@ -117,6 +117,13 @@ struct roller_shutter {
           percentage_known = true;
         }
       }
+      //TODO: report in setup too
+      if (percentage_known) {
+        snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'%d'}#", 0, percentage);
+      } else {
+        snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'unknown'}#", 0);
+      }
+      Serial.println(rs_str);
 #if 1
       if (percentage_known) {
         for (int i = 0; i < percentage/10; i++)
