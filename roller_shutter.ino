@@ -5,8 +5,6 @@ serial_parser ser_parser;
 
 #include "roller_shutter.h"
 
-roller_shutter rs;
-
 unsigned long uu[] = {0x1};
 unsigned long dd[] = {0x2};
 
@@ -26,15 +24,19 @@ unsigned long *test_vector[][2] = {
   NULL,
 };
 
+#define RS_ARRAY_SIZE (2)
+roller_shutter rs[RS_ARRAY_SIZE];
+
 uint8_t p;
 
 void setup() {
   Serial.begin(57600);
   Serial.println("--Ready--");
-  p = 3;
+  p = 0xF;
 
   //pin port, btn_up, btn_dn, relay_up, relay_dn
-  rs.setup(0, &p, 0, 1, 7, 8);
+  rs[0].setup(0, &p, 0, 1, 7, 8);
+  rs[1].setup(1, &p, 2, 3, 9, 10);
 
   //unit_test();
 }
@@ -65,17 +67,15 @@ void unit_test() {
 }
 
 void handle_serial_cmd() {
-  int32_t cmd, i, percentage;
-  roller_shutter *r;
+  uint32_t cmd, i, percentage;
 
   cmd = ser_parser.get_next_token_int();
   switch (cmd) {
     case 0: // roller_shutter
       i = ser_parser.get_next_token_int();
-      if (i != 0) {Serial.println("${\"status\":\"ERR roller shutter id\"}#");return;}
-      r = &rs;
+      if (0 > i || i >= RS_ARRAY_SIZE) {Serial.println("${\"status\":\"ERR roller shutter id\"}#");return;}
       percentage = ser_parser.get_next_token_int();
-      if (!r->move_to_target(percentage)) {Serial.println("${\"status\":\"ERR percentage\"}#");return;}
+      if (!rs[i].move_to_target(percentage)) {Serial.println("${\"status\":\"ERR percentage\"}#");return;}
       break;
     default:
       Serial.println("${\"status\":\"ERR roller shutter cmd\"}#");return;
@@ -86,7 +86,8 @@ void loop() {
   if (ser_parser.process_serial()) {
     handle_serial_cmd();
   }
-  rs.fsm();
+  for (int i=0; i<RS_ARRAY_SIZE; ++i)
+    rs[i].fsm();
   delay(10);
 }
 
