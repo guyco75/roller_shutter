@@ -75,7 +75,7 @@ struct roller_shutter {
 
     rs_command(d);
 
-#if 1
+#if 0
     if (state == RS_FSM_IDLE) {
       snprintf(rs_str, sizeof(rs_str), "\n%lu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
       Serial.println(rs_str);
@@ -124,7 +124,7 @@ struct roller_shutter {
         snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'unknown'}#", 0);
       }
       Serial.println(rs_str);
-#if 1
+#if 0
       if (percentage_known) {
         for (int i = 0; i < percentage/10; i++)
           Serial.print("*");
