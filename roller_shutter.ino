@@ -26,15 +26,21 @@ unsigned long *test_vector[][2] = {
   NULL,
 };
 
+uint8_t p;
+
 void setup() {
   Serial.begin(57600);
   Serial.println("--Ready--");
-  uint8_t p = 3;
-  int test = 0;
+  p = 3;
 
   //pin port, btn_up, btn_dn, relay_up, relay_dn
   rs.setup(0, &p, 0, 1, 7, 8);
 
+  //unit_test();
+}
+
+void unit_test() {
+  int test = 0;
   for (;;) {
     if (test_vector[test]) {
       last_action = millis();
