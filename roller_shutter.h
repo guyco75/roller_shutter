@@ -41,7 +41,7 @@ struct roller_shutter {
     dir = RS_DIR_NONE;
     state = RS_FSM_IDLE;
     percentage = minp = maxp = 0;
-    percentage_known = 0;
+    percentage_known = false;
   }
 
   void rs_command() {
@@ -114,11 +114,7 @@ struct roller_shutter {
   void fsm() {
     enum scene btn_up_state = btn_up.read_state();
     enum scene btn_dn_state = btn_dn.read_state();
-/*
-    if (btn_up_state != SCENE_NONE) {
-      Serial.println(scene_names[btn_up_state]);
-    }
-*/
+
     if (state == RS_FSM_IDLE && btn_up_state == SCENE_NONE && btn_dn_state == SCENE_NONE)
       return;
 

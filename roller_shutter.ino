@@ -37,12 +37,10 @@ void setup() {
           last_action = millis();
           ++i;
         }
-        rs.fsm();
-        delay(10);
+        loop();
       }
       for (int t=0; t<100; ++t) {
-        rs.fsm();
-        delay(10);
+        loop();
       }
       Serial.println("---------");
       ++test;
