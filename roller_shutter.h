@@ -173,6 +173,44 @@ struct roller_shutter {
     //read serial
     //  if RS_FSM_STEP ignore action commands
   }
+
+  bool move_to_target(int32_t p) {
+      if (state != RS_FSM_IDLE && state != RS_FSM_MOVE_TO_TARGET)
+        return true;
+
+      if (percentage_known) {
+        if (p > percentage) {
+          if (p == 1000) {
+            time_to_move = 1100 * 10;   //TODO
+          } else if (0 < p && p < 1000) {
+            time_to_move = (p - percentage) * 10;
+          } else {
+            return false;
+          }
+          change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_UP);
+        } else if (p < percentage) {
+          if (p == 0) {
+            time_to_move = 1100 * 10;   //TODO
+          } else if (0 < p && p < 1000) {
+            time_to_move = (percentage - p) * 10;
+          } else {
+            return false;
+          }
+          change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_DOWN);
+        }
+      } else {
+        if (p == 1000) {
+          time_to_move = 1100 * 10;   //TODO
+          change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_UP);
+        } else if (p == 0) {
+          time_to_move = 1100 * 10;   //TODO
+          change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_DOWN);
+        } else {
+          return false;
+        }
+      }
+      return true;
+  }
 };
 
 #endif
