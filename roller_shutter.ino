@@ -26,7 +26,9 @@ void setup() {
   Serial.println("--Ready--");
   uint8_t p = 3;
   int test = 0;
-  rs.setup(&p, 0, 1);
+  //pin port, btn_up, btn_dn, relay_up, relay_dn
+  rs.setup(&p, 0, 1, 7, 8);
+
   for (;;) {
     if (test_vector[test]) {
       last_action = millis();

@@ -23,8 +23,8 @@ enum rs_direction {
 };
 
 struct roller_shutter {
-  button btn_up;
-  button btn_dn;
+  button btn_up, btn_dn;
+  uint8_t relay_pin_up, relay_pin_dn;
   enum rs_direction dir;
   enum rs_fsm_state state;
   int16_t percentage;
@@ -35,23 +35,42 @@ struct roller_shutter {
   unsigned long start_move;
   unsigned long time_to_move;
 
-  void setup(volatile uint8_t *pin_port, uint8_t up_bit, uint8_t dn_bit) {
+  void setup(volatile uint8_t *pin_port, uint8_t up_bit, uint8_t dn_bit, uint8_t relay_up, uint8_t relay_dn) {
     btn_up.setup(pin_port, up_bit);
     btn_dn.setup(pin_port, dn_bit);
+
+    relay_pin_up = relay_up;
+    relay_pin_dn = relay_dn;
+    digitalWrite(relay_pin_up, HIGH);
+    digitalWrite(relay_pin_dn, HIGH);
+    pinMode(relay_pin_up, OUTPUT);
+    pinMode(relay_pin_dn, OUTPUT);
+
     dir = RS_DIR_NONE;
     state = RS_FSM_IDLE;
     percentage = minp = maxp = 0;
     percentage_known = false;
   }
 
-  void rs_command() {
-    //TODO
+  void rs_command(enum rs_direction d) {
+    digitalWrite(relay_pin_up, HIGH);
+    digitalWrite(relay_pin_dn, HIGH);
+    switch (d) {
+      case RS_DIR_UP:
+        digitalWrite(relay_pin_up, LOW);
+        break;
+      case RS_DIR_DOWN:
+        digitalWrite(relay_pin_dn, LOW);
+        break;
+    }
   }
 
   void change_fsm_state(enum rs_fsm_state st, enum rs_direction d) {
     if (state != RS_FSM_IDLE && st != RS_FSM_IDLE) {
       change_fsm_state(RS_FSM_IDLE, RS_DIR_NONE);
     }
+
+    rs_command(d);
 
 #if 1
     if (state == RS_FSM_IDLE) {
@@ -68,8 +87,6 @@ struct roller_shutter {
     }
     state = st;
     dir = d;
-
-    rs_command(); // in place...
   }
 
   update_percentage(bool final) {
