@@ -1,3 +1,8 @@
+
+#define SERIAL_CMD_BUF_SIZE (80)
+#include "serial_parser/serial_parser.h"
+serial_parser ser_parser;
+
 #include "roller_shutter.h"
 
 roller_shutter rs;
@@ -53,8 +58,28 @@ void setup() {
   }
 }
 
+void handle_serial_cmd() {
+  int32_t cmd, i, percentage;
+  roller_shutter *r;
+
+  cmd = ser_parser.get_next_token_int();
+  switch (cmd) {
+    case 0: // roller_shutter
+      i = ser_parser.get_next_token_int();
+      if (i != 0) {Serial.println("${\"status\":\"ERR roller shutter id\"}#");return;}
+      r = &rs;
+      percentage = ser_parser.get_next_token_int();
+      if (!r->move_to_target(percentage)) {Serial.println("${\"status\":\"ERR percentage\"}#");return;}
+      break;
+    default:
+      Serial.println("${\"status\":\"ERR roller shutter cmd\"}#");return;
+  }
+}
 
 void loop() {
+  if (ser_parser.process_serial()) {
+    handle_serial_cmd();
+  }
   rs.fsm();
   delay(10);
 }
