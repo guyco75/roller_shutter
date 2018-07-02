@@ -23,7 +23,7 @@ enum rs_direction {
 };
 
 struct roller_shutter {
-  button btn_up, btn_dn;
+  struct button btn_up, btn_dn;
   uint8_t relay_pin_up, relay_pin_dn;
   uint8_t  rs_id;
   enum rs_direction dir;
@@ -52,7 +52,7 @@ struct roller_shutter {
     dir = RS_DIR_NONE;
     state = RS_FSM_IDLE;
     percentage = minp = maxp = 0;
-    percentage_known = false;
+    percentage_known = true;
   }
 
   void rs_command(enum rs_direction d) {
@@ -69,30 +69,31 @@ struct roller_shutter {
   }
 
   void change_fsm_state(enum rs_fsm_state st, enum rs_direction d) {
-    if (state != RS_FSM_IDLE && st != RS_FSM_IDLE) {
-      change_fsm_state(RS_FSM_IDLE, RS_DIR_NONE);
-    }
-
-    rs_command(d);
-
 #if 0
     if (state == RS_FSM_IDLE) {
       snprintf(rs_str, sizeof(rs_str), "\n%lu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
       Serial.println(rs_str);
     }
 #endif
-    if (st == RS_FSM_IDLE) {
+
+    if (state != RS_FSM_IDLE) {
       update_percentage(true);
-    } else {
+    }
+
+    if (st != RS_FSM_IDLE) {
       start_move = millis();
       start_percentage = percentage;
       last_percentage_update = start_move;
     }
+
+    if (d != dir)
+      rs_command(d);
+
     state = st;
     dir = d;
   }
 
-  update_percentage(bool final) {
+  void update_percentage(bool final) {
     unsigned long now = millis();
     if (final || now - last_percentage_update >= 1000) {
       int16_t p = (now - start_move) / 10;
@@ -124,7 +125,7 @@ struct roller_shutter {
         snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'unknown'}#", rs_id);
       }
       Serial.println(rs_str);
-#if 0
+#if 1
       if (percentage_known) {
         for (int i = 0; i < percentage/10; i++)
           Serial.print("*");
@@ -177,13 +178,14 @@ struct roller_shutter {
         change_fsm_state(RS_FSM_IDLE, RS_DIR_NONE);
       }
     }
-    //read serial
-    //  if RS_FSM_STEP ignore action commands
   }
 
   bool move_to_target(int32_t p) {
       if (state != RS_FSM_IDLE && state != RS_FSM_MOVE_TO_TARGET)
         return true;
+
+      if (state != RS_FSM_IDLE)
+        update_percentage(true);
 
       if (percentage_known) {
         if (p > percentage) {

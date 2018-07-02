@@ -5,6 +5,7 @@ serial_parser ser_parser;
 
 #include "roller_shutter.h"
 
+unsigned long xx[] = {0x0};
 unsigned long uu[] = {0x1};
 unsigned long dd[] = {0x2};
 
@@ -21,30 +22,34 @@ unsigned long *test_vector[][2] = {
   {uu, double_click},
   {uu, single_click},
   {uu, double_click},
-  NULL,
+  {xx, NULL},
 };
 
 #define RS_ARRAY_SIZE (2)
-roller_shutter rs[RS_ARRAY_SIZE];
+struct roller_shutter rs[RS_ARRAY_SIZE];
 
-uint8_t p;
+void handle_serial_cmd() {
+  uint32_t cmd, i, percentage;
 
-void setup() {
-  Serial.begin(57600);
-  Serial.println("--Ready--");
-  p = 0xF;
-
-  //pin port, btn_up, btn_dn, relay_up, relay_dn
-  rs[0].setup(0, &p, 0, 1, 7, 8);
-  rs[1].setup(1, &p, 2, 3, 9, 10);
-
-  //unit_test();
+  cmd = ser_parser.get_next_token_int();
+  switch (cmd) {
+    case 0: // roller_shutter
+      i = ser_parser.get_next_token_int();
+      if (0 > i || i >= RS_ARRAY_SIZE) {Serial.println("${\"status\":\"ERR roller shutter id\"}#");return;}
+      percentage = ser_parser.get_next_token_int();
+      if (!rs[i].move_to_target(percentage)) {Serial.println("${\"status\":\"ERR percentage\"}#");return;}
+      break;
+    default:
+      Serial.println("${\"status\":\"ERR roller shutter cmd\"}#");return;
+  }
 }
 
-void unit_test() {
+uint8_t p;
+void loop();
+void unit_test1() {
   int test = 0;
   for (;;) {
-    if (test_vector[test]) {
+    if (test_vector[test][0][0]) {
       last_action = millis();
       int i = 0;
       while (test_vector[test][1][i]) {
@@ -66,20 +71,27 @@ void unit_test() {
   }
 }
 
-void handle_serial_cmd() {
-  uint32_t cmd, i, percentage;
-
-  cmd = ser_parser.get_next_token_int();
-  switch (cmd) {
-    case 0: // roller_shutter
-      i = ser_parser.get_next_token_int();
-      if (0 > i || i >= RS_ARRAY_SIZE) {Serial.println("${\"status\":\"ERR roller shutter id\"}#");return;}
-      percentage = ser_parser.get_next_token_int();
-      if (!rs[i].move_to_target(percentage)) {Serial.println("${\"status\":\"ERR percentage\"}#");return;}
-      break;
-    default:
-      Serial.println("${\"status\":\"ERR roller shutter cmd\"}#");return;
+void unit_test2() {
+  rs[0].move_to_target(800);
+  Serial.println("---------");
+  for (int i=0; i<450; ++i) {
+    rs[0].fsm();
+    delay(10);
   }
+  Serial.println("---------");
+  rs[0].move_to_target(800);
+}
+
+void setup() {
+  Serial.begin(57600);
+  Serial.println("--Ready--");
+  p = 0xF;
+
+  //pin port, btn_up, btn_dn, relay_up, relay_dn
+  rs[0].setup(0, &p, 0, 1, 7, 8);
+  rs[1].setup(1, &p, 2, 3, 9, 10);
+
+  unit_test1();
 }
 
 void loop() {
@@ -90,4 +102,5 @@ void loop() {
     rs[i].fsm();
   delay(10);
 }
+
 
