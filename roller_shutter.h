@@ -186,6 +186,9 @@ struct roller_shutter {
       if (state != RS_FSM_IDLE && state != RS_FSM_MOVE_TO_TARGET)
         return true;
 
+      if (state != RS_FSM_IDLE)
+        update_percentage(true);
+
       if (percentage_known) {
         if (p > percentage) {
           if (p == 1000) {
