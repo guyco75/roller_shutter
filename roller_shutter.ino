@@ -5,6 +5,7 @@ serial_parser ser_parser;
 
 #include "roller_shutter.h"
 
+unsigned long xx[] = {0x0};
 unsigned long uu[] = {0x1};
 unsigned long dd[] = {0x2};
 
@@ -21,11 +22,11 @@ unsigned long *test_vector[][2] = {
   {uu, double_click},
   {uu, single_click},
   {uu, double_click},
-  NULL,
+  {xx, NULL},
 };
 
 #define RS_ARRAY_SIZE (2)
-roller_shutter rs[RS_ARRAY_SIZE];
+struct roller_shutter rs[RS_ARRAY_SIZE];
 
 uint8_t p;
 
@@ -44,7 +45,7 @@ void setup() {
 void unit_test() {
   int test = 0;
   for (;;) {
-    if (test_vector[test]) {
+    if (test_vector[test][0][0]) {
       last_action = millis();
       int i = 0;
       while (test_vector[test][1][i]) {

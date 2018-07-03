@@ -23,7 +23,7 @@ enum rs_direction {
 };
 
 struct roller_shutter {
-  button btn_up, btn_dn;
+  struct button btn_up, btn_dn;
   uint8_t relay_pin_up, relay_pin_dn;
   uint8_t  rs_id;
   enum rs_direction dir;
@@ -92,7 +92,7 @@ struct roller_shutter {
     dir = d;
   }
 
-  update_percentage(bool final) {
+  void update_percentage(bool final) {
     unsigned long now = millis();
     if (final || now - last_percentage_update >= 1000) {
       int16_t p = (now - start_move) / 10;
