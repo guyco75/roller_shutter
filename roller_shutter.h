@@ -69,25 +69,26 @@ struct roller_shutter {
   }
 
   void change_fsm_state(enum rs_fsm_state st, enum rs_direction d) {
-    if (state != RS_FSM_IDLE && st != RS_FSM_IDLE) {
-      change_fsm_state(RS_FSM_IDLE, RS_DIR_NONE);
-    }
-
-    rs_command(d);
-
 #if 0
     if (state == RS_FSM_IDLE) {
       snprintf(rs_str, sizeof(rs_str), "\n%lu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
       Serial.println(rs_str);
     }
 #endif
-    if (st == RS_FSM_IDLE) {
+
+    if (state != RS_FSM_IDLE) {
       update_percentage(true);
-    } else {
+    }
+
+    if (st != RS_FSM_IDLE) {
       start_move = millis();
       start_percentage = percentage;
       last_percentage_update = start_move;
     }
+
+    if (d != dir)
+      rs_command(d);
+
     state = st;
     dir = d;
   }
