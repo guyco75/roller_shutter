@@ -183,8 +183,6 @@ struct roller_shutter {
         change_fsm_state(RS_FSM_IDLE, RS_DIR_NONE);
       }
     }
-    //read serial
-    //  if RS_FSM_STEP ignore action commands
   }
 
   bool move_to_target(int32_t p) {
