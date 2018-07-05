@@ -53,6 +53,7 @@ struct roller_shutter {
     state = RS_FSM_IDLE;
     percentage = minp = maxp = 0;
     percentage_known = false;
+    report_percentage();
   }
 
   void rs_command(enum rs_direction d) {
@@ -93,6 +94,15 @@ struct roller_shutter {
     dir = d;
   }
 
+  void report_percentage() {
+    if (percentage_known) {
+      snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'%d'}#", rs_id, percentage);
+    } else {
+      snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'unknown'}#", rs_id);
+    }
+    Serial.println(rs_str);
+  }
+
   void update_percentage(bool final) {
     unsigned long now = millis();
     if (final || now - last_percentage_update >= 1000) {
@@ -105,6 +115,7 @@ struct roller_shutter {
         } else {
           percentage = max(0, start_percentage - p);
         }
+        report_percentage();
       } else {
         if (dir == RS_DIR_UP) {
           percentage = start_percentage + p;
@@ -116,15 +127,9 @@ struct roller_shutter {
         if (maxp - minp >= 1010) {
           percentage = start_percentage = (dir == RS_DIR_UP ? 1000 : 0);
           percentage_known = true;
+          report_percentage();
         }
       }
-      //TODO: report in setup too
-      if (percentage_known) {
-        snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'%d'}#", rs_id, percentage);
-      } else {
-        snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'unknown'}#", rs_id);
-      }
-      Serial.println(rs_str);
 #if 0
       if (percentage_known) {
         for (int i = 0; i < percentage/10; i++)

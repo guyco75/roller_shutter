@@ -20,8 +20,14 @@ void handle_serial_cmd() {
       if (!rs[i].move_to_target(percentage)) {Serial.println("${\"status\":\"ERR percentage\"}#");return;}
       break;
 #endif
+    case 999: // get update for all
+#ifdef RS_ARRAY_SIZE
+      for (int i=0; i<RS_ARRAY_SIZE; ++i)
+        rs[i].report_percentage();
+#endif
+      break;
     default:
-      Serial.println("${\"status\":\"ERR roller shutter cmd\"}#");return;
+      Serial.println("${\"status\":\"ERR roller shutter cmd\"}#");return; //todo
   }
 }
 
