@@ -34,11 +34,11 @@ struct roller_shutter {
   unsigned long start_move;
   unsigned long time_to_move;
 
-  void setup(uint8_t id, volatile uint8_t *pin_port, uint8_t up_bit, uint8_t dn_bit, uint8_t relay_up, uint8_t relay_dn) {
+  void setup(uint8_t id, uint8_t btn_up_pin, uint8_t btn_dn_pin, uint8_t relay_up, uint8_t relay_dn) {
     rs_id = id;
 
-    btn_up.setup(pin_port, up_bit);
-    btn_dn.setup(pin_port, dn_bit);
+    btn_up.setup(btn_up_pin);
+    btn_dn.setup(btn_dn_pin);
 
     relay_pin_up = relay_up;
     relay_pin_dn = relay_dn;
