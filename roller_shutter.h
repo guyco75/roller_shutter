@@ -1,8 +1,6 @@
 #ifndef ROLLER_SHUTTER_H
 #define ROLLER_SHUTTER_H
 
-#include "button2/button2.h"
-
 char rs_str[120];
 
 enum rs_fsm_state {

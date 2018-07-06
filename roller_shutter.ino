@@ -3,6 +3,7 @@
 #include "serial_parser/serial_parser.h"
 serial_parser ser_parser;
 
+#include "button2/button2.h"
 #include "roller_shutter.h"
 
 //#include "profile_test1.h"
