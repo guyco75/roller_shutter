@@ -19,6 +19,15 @@ unsigned long long_click[] = {4000,(7000),0};
 
 static unsigned long last_action;
 unsigned long *test_vector[][2] = {
+/*  {uu, single_click},
+  {uu, double_click},
+  {uu, triple_click},
+  {uu, quadruple_click},
+  {uu, pentuple_click},
+
+  {uu, triple_long_click},
+  {uu, quadruple_long_click},
+  {uu, pentuple_long_click},*/
   {uu, long_click},
   {uu, double_click},
   {dd, long_click},
@@ -56,6 +65,21 @@ void unit_test1() {
   }
 }
 
+void unit_test2() {
+  rs[0].move_to_target(0);
+  Serial.println("---------");
+  for (int i=0; i<1300; ++i) {
+    loop();
+  }
+  rs[0].move_to_target(800);
+  Serial.println("---------");
+  for (int i=0; i<450; ++i) {
+    loop();
+  }
+  Serial.println("---------");
+  rs[0].move_to_target(800);
+}
+
 void setup_rs() {
   p = 0xF;
 
@@ -64,4 +88,6 @@ void setup_rs() {
   rs[1].setup(1, &p, 2, 3, 9, 10);
 
   unit_test1();
+  unit_test2();
 }
+
