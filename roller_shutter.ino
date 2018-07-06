@@ -10,26 +10,15 @@ serial_parser ser_parser;
 #include "profile_living_room_balcony.h"
 
 void handle_serial_cmd() {
-  uint32_t cmd, i, percentage;
+  char *cmd_str;
 
-  cmd = ser_parser.get_next_token_int();
-  switch (cmd) {
-#ifdef RS_ARRAY_SIZE
-    case 0: // roller_shutter
-      i = ser_parser.get_next_token_int();
-      if (0 > i || i >= RS_ARRAY_SIZE) {Serial.println("${\"status\":\"ERR roller shutter id\"}#");return;}
-      percentage = ser_parser.get_next_token_int();
-      if (!rs[i].move_to_target(percentage)) {Serial.println("${\"status\":\"ERR percentage\"}#");return;}
-      break;
-#endif
-    case 999: // get update for all
-#ifdef RS_ARRAY_SIZE
-      for (int i=0; i<RS_ARRAY_SIZE; ++i)
-        rs[i].report_percentage();
-#endif
-      break;
-    default:
-      Serial.println("${\"status\":\"ERR roller shutter cmd\"}#");return; //todo
+  cmd_str = ser_parser.get_next_token();
+  if (!strcmp(cmd_str, "rs")) {
+    roller_shutter::handle_serial_cmd(rs, RS_ARRAY_SIZE);
+
+  } else if (!strcmp(cmd_str, "status_req")) {
+    for (int i=0; i<RS_ARRAY_SIZE; ++i)
+      rs[i].report_percentage();
   }
 }
 
