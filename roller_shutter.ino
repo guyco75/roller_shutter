@@ -5,7 +5,8 @@ serial_parser ser_parser;
 
 #include "roller_shutter.h"
 
-#include "profile_test1.h"
+//#include "profile_test1.h"
+#include "profile_living_room_balcony.h"
 
 void handle_serial_cmd() {
   uint32_t cmd, i, percentage;
