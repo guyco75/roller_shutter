@@ -1,5 +1,7 @@
+#include "button2/button2.h"
+
 #define RS_ARRAY_SIZE (2)
-struct roller_shutter rs[RS_ARRAY_SIZE];
+#include "roller_shutter.h"
 
 unsigned long xx[] = {0x0};
 unsigned long uu[] = {0x1};

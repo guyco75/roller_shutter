@@ -235,5 +235,7 @@ struct roller_shutter {
   }
 };
 
+struct roller_shutter rs[RS_ARRAY_SIZE];
+
 #endif
 

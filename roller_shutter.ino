@@ -2,9 +2,6 @@
 #define SERIAL_CMD_BUF_SIZE (80)
 #include "serial_parser/serial_parser.h"
 
-#include "button2/button2.h"
-#include "roller_shutter.h"
-
 //#include "profile_test1.h"
 #include "profile_living_room_balcony.h"
 

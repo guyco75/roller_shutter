@@ -1,5 +1,8 @@
+
+#include "button2/button2.h"
+
 #define RS_ARRAY_SIZE (2)
-struct roller_shutter rs[RS_ARRAY_SIZE];
+#include "roller_shutter.h"
 
 void setup_rs() {
   DDRC = 0;    // set all analog pins to INPUT
