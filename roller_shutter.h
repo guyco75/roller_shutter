@@ -225,13 +225,17 @@ struct roller_shutter {
   }
 
   static void handle_serial_cmd(roller_shutter *rs, uint8_t arr_size) {
-    uint32_t percentage;
-    uint8_t i;
+    int32_t percentage, id;
 
-    i = ser_parser.get_next_token_int();
-    if (i < 0 || arr_size <= i) {Serial.println("${\"status\":\"ERR roller shutter id\"}#");return;}
-    percentage = ser_parser.get_next_token_int();
-    if (!rs[i].move_to_target(percentage)) {Serial.println("${\"status\":\"ERR percentage\"}#");return;}
+    if (!ser_parser.get_next_token_int(&id) || id < 0 || arr_size <= id) {
+      Serial.println("${\"status\":\"ERR roller shutter id\"}#");
+      return;
+    }
+
+    if (!ser_parser.get_next_token_int(&percentage) || !rs[id].move_to_target(percentage)) {
+      Serial.println("${\"status\":\"ERR percentage\"}#");
+      return;
+    }
   }
 };
 
