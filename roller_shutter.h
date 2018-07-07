@@ -19,6 +19,11 @@ enum rs_direction {
   RS_DIR_UP,
   RS_DIR_DOWN,
 };
+static const char *rs_direction_names[] = {
+  "NONE",
+  "UP",
+  "DOWN",
+};
 
 struct roller_shutter {
   struct button btn_up, btn_dn;
@@ -65,6 +70,9 @@ struct roller_shutter {
         digitalWrite(relay_pin_dn, LOW);
         break;
     }
+
+    snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','dir':'%s'}#", rs_id, rs_direction_names[d]);
+    Serial.println(rs_str);
   }
 
   void change_fsm_state(enum rs_fsm_state st, enum rs_direction d) {
