@@ -157,8 +157,7 @@ struct roller_shutter {
       return;
 
     if (btn_up_state == SCENE_DOUBLE_CLICK_DONE) {
-      time_to_move = 1100 * 10;   //TODO
-      change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_UP);
+      move_to_target(1000);
 
     } else if (btn_up_state == SCENE_LONG_CLICK) {
       if (state != RS_FSM_STEP) {
@@ -167,8 +166,7 @@ struct roller_shutter {
       update_percentage(false);
 
     } else if (btn_dn_state == SCENE_DOUBLE_CLICK_DONE) {
-      time_to_move = 1100 * 10;   //TODO
-      change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_DOWN);
+      move_to_target(0);
 
     } else if (btn_dn_state == SCENE_LONG_CLICK) {
       if (state != RS_FSM_STEP) {
