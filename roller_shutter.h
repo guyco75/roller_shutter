@@ -2,6 +2,11 @@
 #define ROLLER_SHUTTER_H
 
 char rs_str[120];
+#define serial_out(_s, _f...) \
+  do { \
+    snprintf((_s), sizeof(_s), _f); \
+    Serial.println(_s); \
+  } while (0);
 
 enum rs_fsm_state {
   RS_FSM_IDLE,
@@ -70,16 +75,13 @@ struct roller_shutter {
         digitalWrite(relay_pin_dn, LOW);
         break;
     }
-
-    snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','dir':'%s'}#", rs_id, rs_direction_names[d]);
-    Serial.println(rs_str);
+    serial_out(rs_str, "${'msg':'rs-update','id':'%d','dir':'%s'}#", rs_id, rs_direction_names[d]);
   }
 
   void change_fsm_state(enum rs_fsm_state st, enum rs_direction d) {
 #if 0
     if (state == RS_FSM_IDLE) {
-      snprintf(rs_str, sizeof(rs_str), "\n%lu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
-      Serial.println(rs_str);
+      serial_out(rs_str, "\n%lu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
     }
 #endif
 
@@ -102,11 +104,10 @@ struct roller_shutter {
 
   void report_percentage() {
     if (percentage_known) {
-      snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'%d'}#", rs_id, percentage);
+      serial_out(rs_str, "${'msg':'rs-update','id':'%d','p':'%d'}#", rs_id, percentage);
     } else {
-      snprintf(rs_str, sizeof(rs_str), "${'msg':'rs-update','id':'%d','p':'unknown'}#", rs_id);
+      serial_out(rs_str, "${'msg':'rs-update','id':'%d','p':'unknown'}#", rs_id);
     }
-    Serial.println(rs_str);
   }
 
   void update_percentage(bool final) {
@@ -140,11 +141,9 @@ struct roller_shutter {
       if (percentage_known) {
         for (int i = 0; i < percentage/10; i++)
           Serial.print("*");
-        snprintf(rs_str, sizeof(rs_str), " %d%s", percentage, final?" (f)":"");
-        Serial.println(rs_str);
+        serial_out(rs_str, " %d%s", percentage, final?" (f)":"");
       } else {
-        snprintf(rs_str, sizeof(rs_str), "percentage = %d\t\tminp = %d\t\tmaxp = %d", percentage, minp, maxp);
-        Serial.println(rs_str);
+        serial_out(rs_str, "percentage = %d\t\tminp = %d\t\tmaxp = %d", percentage, minp, maxp);
       }
 #endif
     }
