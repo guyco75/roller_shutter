@@ -41,19 +41,19 @@ struct roller_shutter {
 
   void setup(uint8_t id, uint8_t btn_up_pin, uint8_t btn_dn_pin, uint8_t relay_up, uint8_t relay_dn) {
     rs_id = id;
+    state = RS_FSM_IDLE;
+    dir = RS_DIR_NONE;
 
     btn_up.setup(btn_up_pin);
     btn_dn.setup(btn_dn_pin);
 
     relay_pin_up = relay_up;
     relay_pin_dn = relay_dn;
-    digitalWrite(relay_pin_up, HIGH);
-    digitalWrite(relay_pin_dn, HIGH);
+
+    rs_command(RS_DIR_NONE);
     pinMode(relay_pin_up, OUTPUT);
     pinMode(relay_pin_dn, OUTPUT);
 
-    dir = RS_DIR_NONE;
-    state = RS_FSM_IDLE;
     percentage = minp = maxp = 0;
     percentage_known = false;
     report_percentage();
