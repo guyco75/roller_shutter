@@ -113,7 +113,7 @@ struct roller_shutter {
   void update_percentage(bool final) {
     unsigned long now = millis();
     if (final || now - last_percentage_update >= 1000) {
-      int16_t p = (now - start_move) / 10;
+      int16_t p = (now - start_move) / 10;  // TODO
       last_percentage_update = now;
 
       if (percentage_known) {
@@ -195,24 +195,21 @@ struct roller_shutter {
         update_percentage(true);
 
       if (percentage_known) {
-        if (p > percentage) {
+        //TODO
+        if ((percentage < p && p < 1000) || p == 1000) {
+          time_to_move = (p - percentage) * 10;
           if (p == 1000) {
-            time_to_move = 1100 * 10;   //TODO
-          } else if (0 < p && p < 1000) {
-            time_to_move = (p - percentage) * 10;
-          } else {
-            return false;
+            time_to_move += 100 * 10;
           }
           change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_UP);
-        } else if (p < percentage) {
+        } else if ((0 < p && p < percentage) || p == 0) {
+          time_to_move = (percentage - p) * 10;
           if (p == 0) {
-            time_to_move = 1100 * 10;   //TODO
-          } else if (0 < p && p < 1000) {
-            time_to_move = (percentage - p) * 10;
-          } else {
-            return false;
+            time_to_move += 100 * 10;
           }
           change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_DOWN);
+        } else {
+          return false;
         }
       } else {
         if (p == 1000) {
