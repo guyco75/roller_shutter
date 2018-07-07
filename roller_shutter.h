@@ -191,9 +191,6 @@ struct roller_shutter {
   }
 
   bool move_to_target(int32_t p) {
-      if (state != RS_FSM_IDLE && state != RS_FSM_MOVE_TO_TARGET)
-        return true;
-
       if (state != RS_FSM_IDLE)
         update_percentage(true);
 
@@ -235,12 +232,17 @@ struct roller_shutter {
     int32_t percentage, id;
 
     if (!ser_parser.get_next_token_int(&id) || id < 0 || arr_size <= id) {
-      Serial.println("${\"status\":\"ERR roller shutter id\"}#");
+      Serial.println("${\"status\":\"ERR roller shutter: id\"}#");
+      return;
+    }
+
+    if (rs[id].state != RS_FSM_IDLE && rs[id].state != RS_FSM_MOVE_TO_TARGET) {
+      Serial.println("${\"status\":\"ERR roller shutter: state\"}#");
       return;
     }
 
     if (!ser_parser.get_next_token_int(&percentage) || !rs[id].move_to_target(percentage)) {
-      Serial.println("${\"status\":\"ERR percentage\"}#");
+      Serial.println("${\"status\":\"ERR roller shutter: percentage\"}#");
       return;
     }
   }
