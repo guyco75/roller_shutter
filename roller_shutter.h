@@ -36,16 +36,16 @@ static const char *rs_direction_names[] = {
 struct roller_shutter {
   struct button btn_up, btn_dn;
   uint8_t relay_pin_up, relay_pin_dn;
-  uint8_t  rs_id;
+  uint8_t rs_id;
   enum rs_direction dir;
   enum rs_fsm_state state;
-  int16_t percentage;
+  int16_t percentage;                      // 0-1000 (for 0.0% - 100.0%)
   int16_t start_percentage;
   bool percentage_known;
-  unsigned long last_percentage_update;
   int16_t minp, maxp;
-  unsigned long start_move;
-  unsigned long time_to_move;
+  unsigned long last_percentage_update;    // in micros
+  unsigned long start_move;                // in micros
+  unsigned long time_to_move;              // in micros
 
   void setup(uint8_t id, uint8_t btn_up_pin, uint8_t btn_dn_pin, uint8_t relay_up, uint8_t relay_dn) {
     rs_id = id;
@@ -93,9 +93,8 @@ struct roller_shutter {
     }
 
     if (st != RS_FSM_IDLE) {
-      start_move = millis();
+      last_percentage_update = start_move = micros();
       start_percentage = percentage;
-      last_percentage_update = start_move;
     }
 
     if (d != dir)
@@ -113,11 +112,11 @@ struct roller_shutter {
     }
   }
 
-  void update_percentage(bool final) {
-    unsigned long now = millis();
-    if (final || now - last_percentage_update >= 1000) {
-      int16_t p = (now - start_move) / 10;  // TODO
-      last_percentage_update = now;
+  void update_percentage(bool force) {
+    unsigned long now_micros = micros();
+    if (force || now_micros - last_percentage_update >= 1000000) { // report if forced or every 1 sec
+      last_percentage_update = now_micros;
+      uint16_t p = (now_micros - start_move) / 10000;  // TODO
 
       if (percentage_known) {
         if (dir == RS_DIR_UP) {
@@ -178,7 +177,7 @@ struct roller_shutter {
       update_percentage(false);
 
     } else if (state == RS_FSM_MOVE_TO_TARGET && btn_up_state == SCENE_NONE && btn_dn_state == SCENE_NONE) {
-      if (millis() - start_move < time_to_move) {
+      if (micros() - start_move < time_to_move) {
         update_percentage(false);
       } else {
         change_fsm_state(RS_FSM_IDLE, RS_DIR_NONE);
@@ -198,15 +197,15 @@ struct roller_shutter {
       if (percentage_known) {
         //TODO
         if ((percentage < p && p < 1000) || p == 1000) {
-          time_to_move = (p - percentage) * 10;
+          time_to_move = (p - percentage) * 10000;
           if (p == 1000) {
-            time_to_move += 100 * 10;
+            time_to_move += 100 * 10000;
           }
           change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_UP);
         } else if ((0 < p && p < percentage) || p == 0) {
-          time_to_move = (percentage - p) * 10;
+          time_to_move = (percentage - p) * 10000;
           if (p == 0) {
-            time_to_move += 100 * 10;
+            time_to_move += 100 * 10000;
           }
           change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_DOWN);
         } else {
@@ -214,10 +213,10 @@ struct roller_shutter {
         }
       } else {
         if (p == 1000) {
-          time_to_move = 1100 * 10;   //TODO
+          time_to_move = 1100 * 10000;   //TODO
           change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_UP);
         } else if (p == 0) {
-          time_to_move = 1100 * 10;   //TODO
+          time_to_move = 1100 * 10000;   //TODO
           change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_DOWN);
         } else {
           return false;
