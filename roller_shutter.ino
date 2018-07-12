@@ -3,8 +3,10 @@
 #define SERIAL_OUT_BUF_SIZE (120)
 #include "serial_parser/serial_parser.h"
 
-//#include "profile_test1.h"
-#include "profile_living_room_balcony.h"
+#include "button2/button2.h"
+
+#define RS_ARRAY_SIZE (2)
+#include "roller_shutter.h"
 
 void handle_serial_cmd() {
   char *cmd_str;
@@ -23,19 +25,19 @@ void setup() {
   Serial.begin(57600);
   Serial.println("--Ready--");
 
-#ifdef RS_ARRAY_SIZE
-  setup_rs();
-#endif
+  //id, btn_up, btn_dn, relay_up, relay_dn
+  rs[0].setup(0, A0, A1, 7, 8);
+  rs[1].setup(1, A2, A3, 9, 10);
 }
 
 void loop() {
   if (ser_parser.process_serial()) {
     handle_serial_cmd();
   }
-#ifdef RS_ARRAY_SIZE
+
   for (int i=0; i<RS_ARRAY_SIZE; ++i)
     rs[i].fsm();
-#endif
+
   delay(10);
 }
 

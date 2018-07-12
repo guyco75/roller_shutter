@@ -1,6 +1,15 @@
 #ifndef ROLLER_SHUTTER_H
 #define ROLLER_SHUTTER_H
 
+/*
+ * Prerequisites (things that should be included/defined before including this file):
+ *   - button2.h (https://github.com/guyco75/button2)
+ *   - serial_parser.h (https://github.com/guyco75/serial_parser)
+ *     - define sizes for SERIAL_CMD_BUF_SIZE and SERIAL_OUT_BUF_SIZE
+ *   - #define RS_ARRAY_SIZE (<number of roller shutters to instantiate>)
+ *
+ *   Take a look at the example usage file
+ */
 
 enum rs_fsm_state {
   RS_FSM_IDLE,
