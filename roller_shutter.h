@@ -1,12 +1,6 @@
 #ifndef ROLLER_SHUTTER_H
 #define ROLLER_SHUTTER_H
 
-char rs_str[120];
-#define serial_out(_s, _f...) \
-  do { \
-    snprintf((_s), sizeof(_s), _f); \
-    Serial.println(_s); \
-  } while (0);
 
 enum rs_fsm_state {
   RS_FSM_IDLE,

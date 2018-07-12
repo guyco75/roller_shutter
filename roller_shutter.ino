@@ -1,5 +1,6 @@
 
 #define SERIAL_CMD_BUF_SIZE (80)
+#define SERIAL_OUT_BUF_SIZE (120)
 #include "serial_parser/serial_parser.h"
 
 //#include "profile_test1.h"
