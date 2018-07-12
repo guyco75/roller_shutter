@@ -81,13 +81,13 @@ struct roller_shutter {
         digitalWrite(relay_pin_dn, LOW);
         break;
     }
-    serial_out(rs_str, "${'msg':'rs-update','id':'%d','dir':'%s'}#", rs_id, rs_direction_names[d]);
+    serial_out("${'msg':'rs-update','id':'%d','dir':'%s'}#", rs_id, rs_direction_names[d]);
   }
 
   void change_fsm_state(enum rs_fsm_state st, enum rs_direction d) {
 #if 0
     if (state == RS_FSM_IDLE) {
-      serial_out(rs_str, "\n%llu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
+      serial_out("\n%llu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
     }
 #endif
 
@@ -109,9 +109,9 @@ struct roller_shutter {
 
   void report_percentage() {
     if (percentage_known) {
-      serial_out(rs_str, "${'msg':'rs-update','id':'%d','p':'%d'}#", rs_id, percentage);
+      serial_out("${'msg':'rs-update','id':'%d','p':'%d'}#", rs_id, percentage);
     } else {
-      serial_out(rs_str, "${'msg':'rs-update','id':'%d','p':'unknown'}#", rs_id);
+      serial_out("${'msg':'rs-update','id':'%d','p':'unknown'}#", rs_id);
     }
   }
 
@@ -146,9 +146,9 @@ struct roller_shutter {
       if (percentage_known) {
         for (int i = 0; i < percentage/10; i++)
           Serial.print("*");
-        serial_out(rs_str, " %d%s", percentage, final?" (f)":"");
+        serial_out(" %d%s", percentage, final?" (f)":"");
       } else {
-        serial_out(rs_str, "percentage = %d\t\tminp = %d\t\tmaxp = %d", percentage, minp, maxp);
+        serial_out("percentage = %d\t\tminp = %d\t\tmaxp = %d", percentage, minp, maxp);
       }
 #endif
     }
