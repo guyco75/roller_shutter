@@ -37,6 +37,7 @@ struct roller_shutter {
   struct button btn_up, btn_dn;
   uint8_t relay_pin_up, relay_pin_dn;
   uint8_t rs_id;
+  uint32_t duration_up, duration_down;     // in milliseconds
   enum rs_direction dir;
   enum rs_fsm_state state;
   int16_t percentage;                      // 0-1000 (for 0.0% - 100.0%)
@@ -47,8 +48,10 @@ struct roller_shutter {
   unsigned long start_move;                // in micros
   unsigned long time_to_move;              // in micros
 
-  void setup(uint8_t id, uint8_t btn_up_pin, uint8_t btn_dn_pin, uint8_t relay_up, uint8_t relay_dn) {
+  void setup(uint8_t id, uint8_t btn_up_pin, uint8_t btn_dn_pin, uint8_t relay_up, uint8_t relay_dn, uint32_t dur_up, uint32_t dur_down) {
     rs_id = id;
+    duration_up = dur_up;
+    duration_down = dur_down;
     state = RS_FSM_IDLE;
     dir = RS_DIR_NONE;
 
@@ -116,7 +119,7 @@ struct roller_shutter {
     unsigned long now_micros = micros();
     if (force || now_micros - last_percentage_update >= 1000000) { // report if forced or every 1 sec
       last_percentage_update = now_micros;
-      uint16_t p = (now_micros - start_move) / 10000;  // TODO
+      int16_t p = (now_micros - start_move) / (dir==RS_DIR_UP ? duration_up : duration_down);   // (time elapsed) / (time for full move)
 
       if (percentage_known) {
         if (dir == RS_DIR_UP) {
@@ -191,37 +194,41 @@ struct roller_shutter {
   }
 
   bool move_to_target(int32_t p) {
+      int16_t percent_delta;
+      enum rs_direction d;
+
       if (state != RS_FSM_IDLE)
         update_percentage(true);
 
       if (percentage_known) {
-        //TODO
         if ((percentage < p && p < 1000) || p == 1000) {
-          time_to_move = (p - percentage) * 10000;
-          if (p == 1000) {
-            time_to_move += 100 * 10000;
-          }
-          change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_UP);
+          d = RS_DIR_UP;
+          percent_delta = p - percentage;
         } else if ((0 < p && p < percentage) || p == 0) {
-          time_to_move = (percentage - p) * 10000;
-          if (p == 0) {
-            time_to_move += 100 * 10000;
-          }
-          change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_DOWN);
+          d = RS_DIR_DOWN;
+          percent_delta = percentage - p;
         } else {
-          return false;
+          return false;       // out of range or percentage==p already
         }
       } else {
         if (p == 1000) {
-          time_to_move = 1100 * 10000;   //TODO
-          change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_UP);
+          d = RS_DIR_UP;
+          percent_delta = 1000;
         } else if (p == 0) {
-          time_to_move = 1100 * 10000;   //TODO
-          change_fsm_state(RS_FSM_MOVE_TO_TARGET, RS_DIR_DOWN);
+          d = RS_DIR_DOWN;
+          percent_delta = 1000;
         } else {
-          return false;
+          return false;       // only 0 or 1000 are allowed
         }
       }
+
+      time_to_move = (unsigned long)percent_delta * (d==RS_DIR_UP ? duration_up : duration_down);
+
+      if (p == 1000 || p == 0) {
+        time_to_move += 2000000;        // add extra 2 seconds
+      }
+
+      change_fsm_state(RS_FSM_MOVE_TO_TARGET, d);
       return true;
   }
 
