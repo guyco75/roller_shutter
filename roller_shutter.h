@@ -81,7 +81,7 @@ struct roller_shutter {
   void change_fsm_state(enum rs_fsm_state st, enum rs_direction d) {
 #if 0
     if (state == RS_FSM_IDLE) {
-      serial_out(rs_str, "\n%lu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
+      serial_out(rs_str, "\n%llu\t\t\t%s --> %s     %d", millis(), rs_fsm_state_names[state], rs_fsm_state_names[st], d);
     }
 #endif
 
