@@ -13,7 +13,7 @@ void handle_serial_cmd() {
 
   cmd_str = ser_parser.get_next_token();
   if (!strcmp(cmd_str, "rs")) {
-    roller_shutter::handle_serial_cmd(rs, RS_ARRAY_SIZE);
+    roller_shutter::handle_serial_cmd();
 
   } else if (!strcmp(cmd_str, "status_req")) {
     for (int i=0; i<RS_ARRAY_SIZE; ++i)
