@@ -232,27 +232,29 @@ struct roller_shutter {
       return true;
   }
 
-  static void handle_serial_cmd(roller_shutter *rs, uint8_t arr_size) {
-    int32_t percentage, id;
-
-    if (!ser_parser.get_next_token_int(&id) || id < 0 || arr_size <= id) {
-      Serial.println("${\"status\":\"ERR roller shutter: id\"}#");
-      return;
-    }
-
-    if (rs[id].state != RS_FSM_IDLE && rs[id].state != RS_FSM_MOVE_TO_TARGET) {
-      Serial.println("${\"status\":\"ERR roller shutter: state\"}#");
-      return;
-    }
-
-    if (!ser_parser.get_next_token_int(&percentage) || !rs[id].move_to_target(percentage)) {
-      Serial.println("${\"status\":\"ERR roller shutter: percentage\"}#");
-      return;
-    }
-  }
+  static void handle_serial_cmd();
 };
 
 struct roller_shutter rs[RS_ARRAY_SIZE];
+
+void roller_shutter::handle_serial_cmd() {
+  int32_t percentage, id;
+
+  if (!ser_parser.get_next_token_int(&id) || id < 0 || RS_ARRAY_SIZE <= id) {
+    Serial.println("${\"status\":\"ERR roller shutter: id\"}#");
+    return;
+  }
+
+  if (rs[id].state != RS_FSM_IDLE && rs[id].state != RS_FSM_MOVE_TO_TARGET) {
+    Serial.println("${\"status\":\"ERR roller shutter: state\"}#");
+    return;
+  }
+
+  if (!ser_parser.get_next_token_int(&percentage) || !rs[id].move_to_target(percentage)) {
+    Serial.println("${\"status\":\"ERR roller shutter: percentage\"}#");
+    return;
+  }
+}
 
 #endif
 
