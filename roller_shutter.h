@@ -213,10 +213,10 @@ struct roller_shutter {
       } else {
         if (p == 1000) {
           d = RS_DIR_UP;
-          percent_delta = 1000;
+          percent_delta = (minp + 1000) - percentage;
         } else if (p == 0) {
           d = RS_DIR_DOWN;
-          percent_delta = 1000;
+          percent_delta = percentage - (maxp - 1000);
         } else {
           return false;       // only 0 or 1000 are allowed
         }
