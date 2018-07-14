@@ -34,7 +34,7 @@ static const char *rs_direction_names[] = {
 };
 
 struct roller_shutter {
-  struct button btn_up, btn_dn;
+  struct button *btn_up, *btn_dn;
   uint8_t relay_pin_up, relay_pin_dn;
   uint8_t rs_id;
   uint32_t duration_up, duration_down;     // in milliseconds
@@ -48,15 +48,15 @@ struct roller_shutter {
   unsigned long start_move;                // in micros
   unsigned long time_to_move;              // in micros
 
-  void setup(uint8_t id, uint8_t btn_up_pin, uint8_t btn_dn_pin, uint8_t relay_up, uint8_t relay_dn, uint32_t dur_up, uint32_t dur_down) {
+  void setup(uint8_t id, struct button *b_up, struct button *b_dn, uint8_t relay_up, uint8_t relay_dn, uint32_t dur_up, uint32_t dur_down) {
     rs_id = id;
     duration_up = dur_up;
     duration_down = dur_down;
     state = RS_FSM_IDLE;
     dir = RS_DIR_NONE;
 
-    btn_up.setup(btn_up_pin);
-    btn_dn.setup(btn_dn_pin);
+    btn_up = b_up;
+    btn_dn = b_dn;
 
     relay_pin_up = relay_up;
     relay_pin_dn = relay_dn;
@@ -155,31 +155,31 @@ struct roller_shutter {
   }
 
   void fsm() {
-    enum scene btn_up_state = btn_up.read_state();
-    enum scene btn_dn_state = btn_dn.read_state();
+    enum button_event btn_up_event = btn_up->last_event;
+    enum button_event btn_dn_event = btn_dn->last_event;
 
-    if (state == RS_FSM_IDLE && btn_up_state == SCENE_NONE && btn_dn_state == SCENE_NONE)
+    if (state == RS_FSM_IDLE && btn_up_event == BUTTON_EVENT_NONE && btn_dn_event == BUTTON_EVENT_NONE)
       return;
 
-    if (btn_up_state == SCENE_DOUBLE_CLICK_DONE) {
+    if (btn_up_event == BUTTON_EVENT_DOUBLE_CLICK_DONE) {
       move_to_target(1000);
 
-    } else if (btn_up_state == SCENE_LONG_CLICK) {
+    } else if (btn_up_event == BUTTON_EVENT_LONG_CLICK) {
       if (state != RS_FSM_STEP) {
         change_fsm_state(RS_FSM_STEP, RS_DIR_UP);
       }
       update_percentage(false);
 
-    } else if (btn_dn_state == SCENE_DOUBLE_CLICK_DONE) {
+    } else if (btn_dn_event == BUTTON_EVENT_DOUBLE_CLICK_DONE) {
       move_to_target(0);
 
-    } else if (btn_dn_state == SCENE_LONG_CLICK) {
+    } else if (btn_dn_event == BUTTON_EVENT_LONG_CLICK) {
       if (state != RS_FSM_STEP) {
         change_fsm_state(RS_FSM_STEP, RS_DIR_DOWN);
       }
       update_percentage(false);
 
-    } else if (state == RS_FSM_MOVE_TO_TARGET && btn_up_state == SCENE_NONE && btn_dn_state == SCENE_NONE) {
+    } else if (state == RS_FSM_MOVE_TO_TARGET && btn_up_event == BUTTON_EVENT_NONE && btn_dn_event == BUTTON_EVENT_NONE) {
       if (micros() - start_move < time_to_move) {
         update_percentage(false);
       } else {
