@@ -1,6 +1,0 @@
-[submodule "button2"]
-	path = button2
-	url = http://github.com/guyco75/button2.git
-[submodule "serial_parser"]
-	path = serial_parser
-	url = https://github.com/guyco75/serial_parser.git
